@@ -2,11 +2,11 @@ import math
 
 
 def checkwin(count ,row, column, boarddiaright, boarddialeft, boardrow, boardcolumn, size):
-    mask = 21
+    mask = 85
     low = max(column - count, 0)
     high = min(size - 1, column + count - 2)
     num = boardrow[row - 1]
-    while (low <= high - count):
+    while (low <= high - count + 1):
         if (num >> 2*low) & mask*3 == mask*2:
             return 1
         elif (num >> 2 * low) & mask * 3 == mask * 3:
@@ -16,7 +16,7 @@ def checkwin(count ,row, column, boarddiaright, boarddialeft, boardrow, boardcol
     low = max(row - count, 0)
     high = min(size - 1, row + count - 2)
     num = boardcolumn[column - 1]
-    while (low <= high - count):
+    while (low <= high - count + 1):
         if (num >> 2 * low) & mask * 3 == mask * 2:
             return 1
         elif (num >> 2 * low) & mask * 3 == mask * 3:
@@ -25,30 +25,30 @@ def checkwin(count ,row, column, boarddiaright, boarddialeft, boardrow, boardcol
     ##########1
     if row + column - 1 > size:
         low = max((column - (row + column - 1 - size) - count), 0)
-        high = min((column - (row + column - 1 - size) + count-2), size - 1)
+        high = min((column - (row + column - 1 - size) + count-2), row - 1 - 1)
     else:
         low = max((column - count), 0)
-        high = min((column + count-2), size - 1)
+        high = min((column + count-2), column - 1)
     num = boarddiaright[(row + column - 1) - 1]
-    while (low <= high - count):
+    while (low <= high - count + 1):
         if (num >> 2 * low) & mask * 3 == mask * 2:
             return 1
         elif (num >> 2 * low) & mask * 3 == mask * 3:
             return -1
         low += 1
     ##########
-    if column + size - row > size:
+    if column > row:
         low = max((row - count), 0)
-        high = min((row + count - 2), size - 1)
+        high = min((row + count - 2), size - column + row - 1)
     else:
         low = max((column - count), 0)
-        high = min((column + count - 2), size - 1)
+        high = min((column + count - 2), size - row + column - 1)
     num = boarddialeft[(column + size - row) - 1]
     print num, low, high
-    while (low <= high - count):
-        if (num >> (2*low)) & (mask * 3) == mask * 2:
+    while low <= high - (count-1):
+        if (num >> (2*low)) & (mask*3) == mask * 2:
             return 1
-        elif (num >> (2*low)) & (mask * 3) == mask * 3:
+        elif (num >> (2 * low)) & (mask * 3) == mask * 3:
             return -1
         low += 1
     return 0
@@ -127,7 +127,7 @@ boardcolumn = [0,0,0,0,0]
 boarddiaright = [0,0,0,0, 0 ,0,0,0,0]
 boarddialeft = [0,0,0,0, 0 ,0,0,0,0]
 size = 5
-count = 3
+count = 4
 turn = 1
 win = gomokupvp (count, turn, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
 while win == 0:

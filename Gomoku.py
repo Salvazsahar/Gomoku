@@ -25,7 +25,7 @@ def gomokupvp(r, c, count, turn, boarddiaright, boarddialeft, boardrow, boardcol
         boarddialeft[(c+size-r)-1] += (1 << 2*(c-1)) * color
     # End Placement
     printboardrow(boardrow)
-    print boarddialeft, "aaaaa"
+    print boarddiaright, "aaaaa"
     win = checkwin(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
     if win == 1:
         print "player 1 has won"
@@ -72,11 +72,12 @@ def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcol
     # #########1
     if row + column - 1 > size:
         low = max((column - (row + column - 1 - size) - count), 0)
-        high = min((column - (row + column - 1 - size) + count-2), row - 1 - 1)
+        high = min((column - (row + column - 1 - size) + count-2), size*2-(row+column))
     else:
         low = max((column - count), 0)
-        high = min((column + count-2), column - 1)
+        high = min((column + count-2), row + column - 2)
     num = boarddiaright[(row + column - 1) - 1]
+    print row, column, num, low, high
     while low <= high - count + 1:
         if (num >> 2 * low) & mask * 3 == mask * 2:
             return 1
@@ -147,4 +148,5 @@ class MyApp(App):
 
 if __name__ == '__main__':
     MyApp().run()
+
 

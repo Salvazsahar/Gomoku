@@ -100,8 +100,13 @@ def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcol
         low += 1
     return 0
 
+# class ButImg(ButtonBehavior, Image):
+#     def __init__(self, **kwargs):
+#         super(ButImg, self).__init__(**kwargs)
+#
 
-class Board(GridLayout, Image):
+
+class Board(GridLayout):
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
@@ -115,22 +120,28 @@ class Board(GridLayout, Image):
         self.count = 4
         self.turn = 1
         self.win = 0
-
         for i in range (self.rows):
             for j in range (self.cols):
-                str1 = (str(i+1)+'-'+str(j+1))
-                self.buttons.append(Button(text=str1))
-                self.buttons[-1].bind(on_press=partial(callback, self, i+1, j+1))
-                self.add_widget(self.buttons[-1])
+                self.add_widget(MyButton(self, i, j))
+                # str1 = (str(i+1)+'-'+str(j+1))
+                # self.buttons.append(Button(text=str1))
+                # self.buttons[-1].bind(on_press=partial(callback, self, i+1, j+1))
+                # self.add_widget(self.buttons[-1])
 
-def callback(binstance, r, c, instance):
-    print "apple"
-    print type(c)
+
+class MyButton(ButtonBehavior, Image):
+    def __init__(self, board, r, c, **kwargs):
+        super(MyButton, self).__init__(**kwargs)
+        self.source = 'C://Users/Tzur Lehavi/Desktop/download.png'
+        self.bind(on_press=partial(callback, board, self, r+1, c+1))
+
+def callback(binstance, button, r, c, instance):
     maskr = (1 << 2*(c-1))
     print binstance.boardrow1, binstance.boardrow1[r-1], maskr, r, c
     if binstance.boardrow1[r-1] & maskr*3 == maskr*2 or binstance.boardrow1[r-1] & maskr*3 == maskr*3:
         print "Try Again"
     else:
+        button.source = 'C://Users/Tzur Lehavi/Desktop/BlackGo.jpg' if binstance.turn & 1 == 1 else ''
         win = gomokupvp(r, c, binstance.count, binstance.turn, binstance.boarddiaright1, binstance.boarddialeft1,
                         binstance.boardrow1, binstance.boardcolumn1, 5)
         print win
@@ -148,5 +159,4 @@ class MyApp(App):
 
 if __name__ == '__main__':
     MyApp().run()
-
 

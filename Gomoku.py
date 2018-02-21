@@ -128,7 +128,12 @@ def scoreAnnoyOpponent(low, high, num, color, count):
         if counttimes > countmax:
             countmax = counttimes
         low += 1
-    if countmax >= 1:
+    if countmax == 4:
+        if color == 2:
+            return (1 << (countmax)*3)
+        else:
+            return (1 << ((countmax)*3))*(-1)
+    elif countmax >= 1:
         if color == 2:
             return (1 << ((countmax-1))*3)
         else:
@@ -293,7 +298,7 @@ def basic_mm_gomoku(count, color, boarddiaright, boarddialeft, boardrow, boardco
         update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
         w = score(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color)
         if w < (1<<20) and w > (1<<20)*-1:
-            if remaining > 1 and depth<3:
+            if remaining > 1 and depth<2:
                 place = 1 << (2 * c)
                 boardpavailable[r] ^= place
                 # print "placeing color = ", color, "r, c = ",r, c
@@ -384,11 +389,11 @@ def callback(binstance, button, r, c, instance):
                                      binstance.boardrow1, binstance.boardcolumn1, binstance.rows)
             binstance.boardpavailable[r] ^= 1 << 2 * c
             button.source = 'C://Users/Tzur Lehavi/Desktop/BlackGo1.jpg'
-        if binstance.win == 0:
-            binstance.win, r, c = mm_vs_player_gomoku(binstance.count, binstance.boarddiaright1, binstance.boarddialeft1, binstance.boardrow1, binstance.boardcolumn1, binstance.boardpavailable, binstance.rows, binstance.turn)
-            binstance.buttons[r][c].source = 'C://Users/Tzur Lehavi/Desktop/WhiteGo1.jpg'
-            print binstance.win
-            binstance.turn += 1
+            if binstance.win == 0:
+                binstance.win, r, c = mm_vs_player_gomoku(binstance.count, binstance.boarddiaright1, binstance.boarddialeft1, binstance.boardrow1, binstance.boardcolumn1, binstance.boardpavailable, binstance.rows, binstance.turn)
+                binstance.buttons[r][c].source = 'C://Users/Tzur Lehavi/Desktop/WhiteGo1.jpg'
+                print binstance.win
+                binstance.turn += 1
 
 
 class MyApp(App):

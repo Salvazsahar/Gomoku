@@ -4,6 +4,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from functools import partial
+from kivy.uix.popup import Popup
 import math
 
 
@@ -60,7 +61,7 @@ def scoreHelpMe(low, high, num, color, count):
                 counttimes = 0
             j += 1
             num1 >>= 2
-        if flag == 0 and counttimes >= 3:
+        if flag == 0 and counttimes >= 3 and countmax<=counttimes:
             countmax = counttimes + 1
         #### checkinf how many in a row there are
         counttimes = 0
@@ -74,7 +75,7 @@ def scoreHelpMe(low, high, num, color, count):
                 counttimes = 0
             i += 1
             num2 >>= 2
-        if counttimes > countmax:
+        if counttimes >= countmax:
             countmax = counttimes
         low += 1
     if countmax ==5:
@@ -130,9 +131,9 @@ def scoreAnnoyOpponent(low, high, num, color, count):
         low += 1
     if countmax == 4:
         if color == 2:
-            return (1 << (countmax)*3)
+            return (2 << (countmax+1)*4)
         else:
-            return (1 << ((countmax)*3))*(-1)
+            return (2 << ((countmax+1)*4))*(-1)
     elif countmax >= 1:
         if color == 2:
             return (1 << ((countmax-1))*3)
@@ -297,7 +298,7 @@ def basic_mm_gomoku(count, color, boarddiaright, boarddialeft, boardrow, boardco
         c = places[i][2]
         update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
         w = score(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color)
-        if w < (1<<20) and w > (1<<20)*-1:
+        if w < (10<<20) and w > (10<<20)*-1:
             if remaining > 1 and depth<2:
                 place = 1 << (2 * c)
                 boardpavailable[r] ^= place
@@ -390,10 +391,42 @@ def callback(binstance, button, r, c, instance):
             binstance.boardpavailable[r] ^= 1 << 2 * c
             button.source = 'C://Users/Tzur Lehavi/Desktop/BlackGo1.jpg'
             if binstance.win == 0:
-                binstance.win, r, c = mm_vs_player_gomoku(binstance.count, binstance.boarddiaright1, binstance.boarddialeft1, binstance.boardrow1, binstance.boardcolumn1, binstance.boardpavailable, binstance.rows, binstance.turn)
-                binstance.buttons[r][c].source = 'C://Users/Tzur Lehavi/Desktop/WhiteGo1.jpg'
-                print binstance.win
-                binstance.turn += 1
+                flag = 0
+                j = 0
+                k = 0
+                while j < 10 and flag == 0:
+                    while k < 10 and flag == 0:
+                        maskr = (1 << 2 * (k))
+                        if binstance.boardrow1[j] & maskr * 3 != maskr * 2 and binstance.boardrow1[j] & maskr * 3 != maskr * 3:
+                            update(j, k, 3, binstance.boarddiaright1, binstance.boarddialeft1, binstance.boardrow1, binstance.boardcolumn1, binstance.rows)
+                            binstance.win = checkwin(binstance.count, j, k, binstance.boarddiaright1, binstance.boarddialeft1,
+                                 binstance.boardrow1, binstance.boardcolumn1, binstance.rows)
+                            if binstance.win == -1:
+                                binstance.buttons[j][k].source = 'C://Users/Tzur Lehavi/Desktop/WhiteGo1.jpg'
+                                binstance.turn += 2
+                                flag = 1
+                            else:
+                                update(j, k, 3, binstance.boarddiaright1, binstance.boarddialeft1, binstance.boardrow1,
+                                       binstance.boardcolumn1, binstance.rows)
+                        k += 1
+                    j += 1
+                if binstance.win == 0:
+                    binstance.win, r, c = mm_vs_player_gomoku(binstance.count, binstance.boarddiaright1, binstance.boarddialeft1, binstance.boardrow1, binstance.boardcolumn1, binstance.boardpavailable, binstance.rows, binstance.turn)
+                    binstance.buttons[r][c].source = 'C://Users/Tzur Lehavi/Desktop/WhiteGo1.jpg'
+                    binstance.turn += 1
+
+                if binstance.win == 1:
+                    content = Button(text = 'The Sun Has Burned The Moon')
+                    popup = Popup(title='Click if you wish to see the board', content=content, size_hint=(None,None), size=(600, 600),
+                                  auto_dismiss=True)
+                    content.bind(on_press=popup.dismiss)
+                    popup.open()
+                elif binstance.win == -1:
+                    content = Button(text = 'The Moon Has Blocked The Sun')
+                    popup = Popup(title='Click if you wish to see the board', content=content, size=(600, 600),
+                                  auto_dismiss=True)
+                    content.bind(on_press=popup.dismiss)
+                    popup.open()
 
 
 class MyApp(App):
@@ -404,3 +437,6 @@ class MyApp(App):
 
 if __name__ == '__main__':
     MyApp().run()
+
+
+

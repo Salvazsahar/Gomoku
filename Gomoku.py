@@ -8,46 +8,46 @@ from kivy.uix.popup import Popup
 import math
 
 
-def score(count, row, column, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color):
-    totscore = 0
+def score(count, row, column, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color): 
+    totscore = 0 // The total score
     ##########
-    low = max(column - count + 1, 0)
-    high = min(size - 1, column + count - 1)
-    num = boardrow[row]
+    low = max(column - count + 1, 0) // The low boundary
+    high = min(size - 1, column + count - 1) // The high boundary
+    num = boardrow[row] // The number representing the row
     totscore += scoreHelpMe(low, high, num, color, count)*10 + scoreAnnoyOpponent(low, high, num, color, count)*9
     ##########
-    low = max(row - count + 1, 0)
-    high = min(size - 1, row + count - 1)
-    num = boardcolumn[column]
+    low = max(row - count + 1, 0) // The low boundary
+    high = min(size - 1, row + count - 1) // The high boundary
+    num = boardcolumn[column] // The number representing the column
     totscore += scoreHelpMe(low, high, num, color, count)*10 + scoreAnnoyOpponent(low, high, num, color, count)*9
     # #########1
     if row + column + 1 > size:
-        low = max((column - (row + column - size) - count), 0)
-        high = min((column - (row + column - size) + count - 2), size * 2 - (row + column + 2))
+        low = max((column - (row + column - size) - count), 0) // The low boundary
+        high = min((column - (row + column - size) + count - 2), size * 2 - (row + column + 2)) // The high boundary
     else:
-        low = max((column - count + 1), 0)
-        high = min((column + count - 1), row + column)
-    num = boarddiaright[(row + column + 1) - 1]
+        low = max((column - count + 1), 0) // The low boundary
+        high = min((column + count - 1), row + column) // The high boundary
+    num = boarddiaright[(row + column + 1) - 1] // The number representing the diagonal
     totscore += scoreHelpMe(low, high, num, color, count)*10 + scoreAnnoyOpponent(low, high, num, color, count)*9
     ##########
     if column > row:
-        low = max((row - count + 1), 0)
-        high = min((row + count - 1), size - column + row - 1)
+        low = max((row - count + 1), 0) // The low boundary
+        high = min((row + count - 1), size - column + row - 1) // The high boundary
     else:
-        low = max((column - count + 1), 0)
-        high = min((column + count - 1), size - row + column - 1)
-    num = boarddialeft[(column + size - row) - 1]
+        low = max((column - count + 1), 0) // The low boundary
+        high = min((column + count - 1), size - row + column - 1) // The high boundary
+    num = boarddialeft[(column + size - row) - 1] // The number representing the diagonal
     totscore += scoreHelpMe(low, high, num, color, count)*10 + scoreAnnoyOpponent(low, high, num, color, count)*9
     return totscore
 
 
 def scoreHelpMe(low, high, num, color, count):
-    countmax = 0
+    countmax = 0 // The maximum amount of pieces of your color in a chain
     while low <= high - count + 1:
         #### checking if there is an unblocked 4 or 5
-        j = 0
-        counttimes = 0
-        flag = 0
+        j = 0 
+        counttimes = 0 // The amount of pieces of your color in a chain
+        flag = 0 // Escape clause
         num1 = num >> 2 * low
         while j < 6 and flag == 0:
             if (num1 & 3 == color):
@@ -64,7 +64,7 @@ def scoreHelpMe(low, high, num, color, count):
         if flag == 0 and counttimes >= 3 and countmax<=counttimes:
             countmax = counttimes + 1
         #### checkinf how many in a row there are
-        counttimes = 0
+        counttimes = 0 // The amount of pieces of your color in a chain
         i = 0
         num2 = num >> 2 * low
         while i<5 and flag != 1 and countmax<4:
@@ -92,11 +92,11 @@ def scoreHelpMe(low, high, num, color, count):
 
 
 def scoreAnnoyOpponent(low, high, num, color, count):
-    countmax = 0
+    countmax = 0 // The maximum amount of pieces of your opponents color in a chain
     while low <= high - count + 1:
         j = 0
-        counttimes = 0
-        flag = 0
+        counttimes = 0 // The amount of pieces of your opponents color in a chain
+        flag = 0 // Escape clause
         num1 = num >> 2 * low
         while j < 6 and flag == 0:
             if (num1 & 3 == color^1):
@@ -113,9 +113,9 @@ def scoreAnnoyOpponent(low, high, num, color, count):
         if flag == 0 and counttimes >= 3:
             countmax = counttimes + 1
         i = 0
-        counttimes = 0
-        countmetimes = 0
-        flag = 0
+        counttimes = 0 // The maximum amount of pieces of your opponents color in a chain
+        countmetimes = 0 // The amount of pieces fo your color interupting your opponents chain
+        flag = 0 // Escape clause
         num1 = num >> 2 * low
         while i < 5 and flag != 1 and countmax<4:
             if num1 & 3 == color^1:
@@ -143,19 +143,19 @@ def scoreAnnoyOpponent(low, high, num, color, count):
 
 
 def choose_best_places(count, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color, boardpavailable):
-    places = []
-    count1 = 0
+    places = [] // A list of all available places in the board with their score
+    count1 = 0 // The length of the list
     for r in range (0, size):
-        rowavailable = boardpavailable[r]
+        rowavailable = boardpavailable[r] // A number representing the available places in the row
         while rowavailable != 0:
-            place = 1
-            c = 0
+            place = 1 // The value of the place the computer is checking
+            c = 0 // The current column the computer is checking
             while rowavailable & place == 0:
                 place <<= 2
                 c += 1
             rowavailable ^= place
             update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
-            totscore = score(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color)
+            totscore = score(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size, color) // The calculated score of each place
             places.append((totscore,r,c))
             count1+=1
             update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
@@ -180,10 +180,10 @@ def update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size
 
 
 def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcolumn, size):
-    mask = 341
-    low = max(column - count+1, 0)
-    high = min(size - 1, column + count - 1)
-    num = boardrow[row]
+    mask = 341 // A "mask" used to check if there is a chain with a length of 5
+    low = max(column - count+1, 0) // The low boundary
+    high = min(size - 1, column + count - 1) // The high boundary
+    num = boardrow[row] // The number representing the row
     while low <= high - count + 1:
         if (num >> 2*low) & mask*3 == mask*2:
             return 1
@@ -191,9 +191,9 @@ def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcol
             return -1
         low += 1
     ##########
-    low = max(row - count + 1, 0)
-    high = min(size - 1, row + count - 1)
-    num = boardcolumn[column]
+    low = max(row - count + 1, 0) // The low boundary
+    high = min(size - 1, row + count - 1) // The high boundary
+    num = boardcolumn[column] // The number representing the column
     while low <= high - count + 1:
         if (num >> 2 * low) & mask * 3 == mask * 2:
             return 1
@@ -202,12 +202,12 @@ def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcol
         low += 1
     # #########1
     if row + column + 1 > size:
-        low = max((column - (row + column - size) - count), 0)
-        high = min((column - (row + column - size) + count-2), size*2-(row+column+2))
+        low = max((column - (row + column - size) - count), 0) // The low boundary
+        high = min((column - (row + column - size) + count-2), size*2-(row+column+2)) // The high boundary
     else:
-        low = max((column - count + 1), 0)
-        high = min((column + count - 1), row+column)
-    num = boarddiaright[(row + column + 1) - 1]
+        low = max((column - count + 1), 0) // The low boundary
+        high = min((column + count - 1), row+column) // The high boundary
+    num = boarddiaright[(row + column + 1) - 1] // The number representing the diagonal
     while low <= high - count + 1:
         if (num >> 2 * low) & mask * 3 == mask * 2:
             return 1
@@ -216,12 +216,12 @@ def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcol
         low += 1
     ##########
     if column > row:
-        low = max((row - count + 1), 0)
-        high = min((row + count - 1), size - column + row - 1)
+        low = max((row - count + 1), 0) // The low boundary
+        high = min((row + count - 1), size - column + row - 1) // The high boundary
     else:
-        low = max((column - count + 1), 0)
-        high = min((column + count - 1), size - row + column - 1)
-    num = boarddialeft[(column + size - row) - 1]
+        low = max((column - count + 1), 0) // The low boundary
+        high = min((column + count - 1), size - row + column - 1) // The high boundary
+    num = boarddialeft[(column + size - row) - 1] // The number representing the diagonal
     while low <= high-count+1:
         if (num >> (2*low)) & (mask*3) == mask * 2:
             return 1
@@ -231,58 +231,31 @@ def checkwin(count, row, column, boarddiaright, boarddialeft, boardrow, boardcol
     return 0
 
 
-def buildboardrowandcolumn(size):
-    boardrc = []
-    for i in xrange(size):
-        num = 0
-        for j in xrange(size):
-            num += 1 << 2*j
-        boardrc.append(num)
-    return boardrc
+# def printboardrow(boardrow):
+#     for i in boardrow:
+#         for j in range(len(boardrow)):
+#             a = i & 3
+#             if a == 3:
+#                 print "o",
+#             elif a == 2:
+#                 print "x",
+#             else:
+#                 print ".",
+#             i >>= 2
+#         print
 
 
-def builboarddia(size):
-    boarddia = []
-    for i in xrange(1, size**2):
-        j = 0
-        num = 0
-        if i <= size:
-            while j <= i:
-                num += 1 << 2*j
-                j += 1
-        else:
-            while j <= (size*2-i):
-                num += 1 << 2*j
-                j += 1
-        boarddia.append(num)
-    return boarddia
-
-
-def printboardrow(boardrow):
-    for i in boardrow:
-        for j in range(len(boardrow)):
-            a = i & 3
-            if a == 3:
-                print "o",
-            elif a == 2:
-                print "x",
-            else:
-                print ".",
-            i >>= 2
-        print
-
-
-def gomokupvp(r, c, count, turn, boarddiaright, boarddialeft, boardrow, boardcolumn, size):
-    color = 3-(turn & 1)
-    update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
-    win = checkwin(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
-    if win == 1:
-        print "player 1 has won"
-        return 1
-    elif win == -1:
-        print "player 2 has won"
-        return -1
-    return 0
+# def gomokupvp(r, c, count, turn, boarddiaright, boarddialeft, boardrow, boardcolumn, size):
+#     color = 3-(turn & 1) 
+#     update(r, c, color, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
+#     win = checkwin(count, r, c, boarddiaright, boarddialeft, boardrow, boardcolumn, size)
+#     if win == 1:
+#         print "player 1 has won"
+#         return 1
+#     elif win == -1:
+#         print "player 2 has won"
+#         return -1
+#     return 0
 
 
 def basic_mm_gomoku(count, color, boarddiaright, boarddialeft, boardrow, boardcolumn, boardpavailable, size, depth, remaining):
